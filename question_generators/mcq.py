@@ -6,7 +6,9 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 
-os.environ["OPENAI_API_KEY"] = "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"
+from config.environment import config
+
+os.environ["OPENAI_API_KEY"] = config.get('OPENAI_API_KEY')
 
 
 class MultipleChoiceQuestion:

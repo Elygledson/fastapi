@@ -3,6 +3,6 @@ import os
 
 load_dotenv()
 
-CONFIG = {
+config = {
     'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY'),
 }
