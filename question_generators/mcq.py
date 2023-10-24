@@ -19,7 +19,7 @@ class MultipleChoiceQuestion:
     def generate(self, text, num):
         response_schemas = [
             ResponseSchema(
-                name="question", description="""A multiple choice question generated from input text snippet."""),
+                name="description", description="""A multiple choice question generated from input text snippet."""),
             ResponseSchema(
                 name="options", description="Possible choices for the multiple choice question."),
             ResponseSchema(

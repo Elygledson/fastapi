@@ -33,7 +33,7 @@ def handle(question_type, text, num):
             mcq_questions = MultipleChoiceQuestion()
             generated_questions = mcq_questions.generate(
                 text, num)
-            generated_questions = [{ 'question': question['question'], 'options': question['options'].split('\n'), 'answer': question['answer'] } for question in generated_questions]
+            generated_questions = [{ 'description': question['description'], 'options': question['options'].split('\n'), 'answer': question['answer'] } for question in generated_questions]
         return JSONResponse(content={'questions': generated_questions, "message": "Questões geradas com sucesso!"})
     except Exception as e:
         print(e)
