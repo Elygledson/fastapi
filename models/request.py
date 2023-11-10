@@ -17,6 +17,7 @@ class Rules(BaseModel):
     knowledge: str
     difficulty: Difficulty
     performance_standard: str
+    question_num: int
 
 
 class Request(BaseModel):

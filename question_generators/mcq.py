@@ -8,17 +8,18 @@ from models.request import Rules
 
 openai.api_key = config.get('OPENAI_API_KEY')
 
+
 class MultipleChoiceQuestion:
     def __init__(self):
         self.llm = ChatOpenAI(
             temperature=0.0, model_name='gpt-3.5-turbo')
-        
+
     def generate(self, rules: Rules):
-        rules = f'Dificuldade: {rules.difficulty}, Capacidade: {rules.capacity}, Padrão de desempenho: {rules.performance_standard}, Conhecimento: {rules.knowledge}.'
+        rules = f'Dificuldade: {rules.difficulty}, Capacidade: {rules.capacity}, Padrão de desempenho: {rules.performance_standard}, Conhecimento: {rules.knowledge}, NúmeroDeQuestões: {rules.question_num}.'
         mcq_function = [
             {
                 "name": "create_mcq",
-                "description": f"Gere uma questão de múltipla escolha com base nas regras dadas com quatro opções de candidato. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão.",
+                "description": f"Gere questões de múltipla escolha com base nas regras dadas com quatro opções de candidato. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão.",
                 "parameters": {
                     "type": "object",
                     "properties": {
