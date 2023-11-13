@@ -1,5 +1,14 @@
 from pydantic import BaseModel, Field
 from enum import Enum
+from langchain.pydantic_v1 import BaseModel, Field
+
+
+class Question(BaseModel):
+    """Gere questões de múltipla escolha com base nas regras dadas com quatro opções de candidato. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão."""
+    
+    question: str = Field(..., description="Uma pergunta de múltipla escolha extraída das regras de entrada.")
+    options: list[str] = Field(...,description="Opção do candidato para a questão de múltipla escolha extraída.")
+    answer: str = Field(...,description="Opção correta para a questão de múltipla escolha.")
 
 
 class QuestionType(str, Enum):

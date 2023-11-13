@@ -19,7 +19,7 @@ class MultipleChoiceQuestion:
         mcq_function = [
             {
                 "name": "create_mcq",
-                "description": f"Gere questões de múltipla escolha com base nas regras dadas com quatro opções de candidato. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão.",
+                "description":"Gere questões de múltipla escolha com base nas regras dadas com quatro opções de candidato. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão.",
                 "parameters": {
                     "type": "object",
                     "properties": {
