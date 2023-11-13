@@ -6,10 +6,13 @@ class QuestionType(str, Enum):
     multiple_choice_question = 'multiple_choice'
     boolean_question = 'boolean'
 
+
 class Difficulty(str, Enum):
-    hard = 'Difícil'
+    very_easy = 'Muito Fácil'
     easy = 'Fácil'
     medium = 'Médio'
+    hard = 'Difícil'
+    very_hard = 'Muito Difícil'
 
 
 class Rules(BaseModel):
@@ -24,5 +27,5 @@ class Request(BaseModel):
     type: QuestionType = Field(description='Tipo de questão a ser gerada')
     num: int = Field(
         default=3, description="Quantidade de questões a serem geradas")
-    rules: Rules = Field(description='Regras estabelecidas para a geração de questões')
-    
+    rules: Rules = Field(
+        description='Regras estabelecidas para a geração de questões')
