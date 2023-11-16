@@ -16,7 +16,7 @@ class QuestionUseCase:
 
     def generate_mcq(self, question: QuestionFactory):
         try:
-            question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num}.'
+            question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num}, Contexto: {question.context}.'
             mcq_function = [
                 {
                     "name": "create_mcq",
@@ -67,7 +67,7 @@ class QuestionUseCase:
         
     def generate_boolquest(self, question: QuestionFactory):
         try:
-            question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num}.'
+            question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num},Contexto: {question.context}.'
             quest_function = [
                 {
                     "name": "create_boolquest",

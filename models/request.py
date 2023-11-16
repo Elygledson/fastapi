@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 from enum import Enum
+from typing import Optional
 
 
 class QuestionType(str, Enum):
     multiple_choice_question = 'multiple_choice'
     boolean_question = 'boolean'
+
 
 class Difficulty(str, Enum):
     very_easy = 'Muito Fácil'
@@ -13,6 +15,7 @@ class Difficulty(str, Enum):
     hard = 'Difícil'
     very_hard = 'Muito Difícil'
 
+
 class QuestionFactory(BaseModel):
     type: QuestionType
     capacity: str
@@ -20,4 +23,4 @@ class QuestionFactory(BaseModel):
     difficulty: Difficulty
     performance_standard: str
     question_num: int
-
+    context: Optional[str] = None
