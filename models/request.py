@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict
 
 
 class QuestionType(str, Enum):
@@ -14,6 +14,11 @@ class Difficulty(str, Enum):
     medium = 'Médio'
     hard = 'Difícil'
     very_hard = 'Muito Difícil'
+                                         
+
+class NumAlternatives(str, Enum):
+    four = 'Quatro'
+    five = 'Cinco'
 
 
 class QuestionFactory(BaseModel):
@@ -23,4 +28,5 @@ class QuestionFactory(BaseModel):
     difficulty: Difficulty
     performance_standard: str
     question_num: int
+    alternatives_num: NumAlternatives = NumAlternatives.four
     context: Optional[str] = None

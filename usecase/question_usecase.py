@@ -16,11 +16,11 @@ class QuestionUseCase:
 
     def generate_mcq(self, question: QuestionFactory):
         try:
-            question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num}, Contexto: {question.context}.'
+            formatted_question  = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num}, Contexto: {question.context}, NumeroDeAlternativas: {question.alternatives_num}.'
             mcq_function = [
                 {
                     "name": "create_mcq",
-                    "description":"Gere questões de múltipla escolha com base nas regras dadas com quatro opções de candidato, levando em consideração taxonomia revisada. Três opções estão incorretas e uma está correta. Indique a opção correta para cada questão.",
+                    "description": f"Gere questões de múltipla escolha com base nas regras dadas com {question.alternatives_num} opções de candidato, levando em consideração taxonomia revisada. Dentre as {question.alternatives_num} opções, apenas uma está correta. Indique a opção correta para cada questão.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -55,23 +55,24 @@ class QuestionUseCase:
 
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": question}],
+                messages=[{"role": "user", "content": formatted_question }],
                 functions=mcq_function,
                 function_call={"name": "create_mcq"},
             )
-            questions = json.loads(response['choices'][0]['message']['function_call']['arguments'])
+            questions = json.loads(
+                response['choices'][0]['message']['function_call']['arguments'])
             return JSONResponse(content={'questions': questions['questions'], "message": "Questões geradas com sucesso!"})
         except Exception as e:
             print(e)
             return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)
-        
+
     def generate_boolquest(self, question: QuestionFactory):
         try:
             question = f'Dificuldade: {question.difficulty}, Capacidade: {question.capacity}, Padrão de desempenho: {question.performance_standard}, Conhecimento: {question.knowledge}, NúmeroDeQuestões: {question.question_num},Contexto: {question.context}.'
             quest_function = [
                 {
                     "name": "create_boolquest",
-                    "description":"Gere questões verdadeira ou falso escolha com base nas regras dadas com duas opções de candidato, levando em consideração taxonomia revisada. Uma opção está correta. Indique a opção correta para cada questão.",
+                    "description": "Gere questões verdadeira ou falso escolha com base nas regras dadas com duas opções de candidato, levando em consideração taxonomia revisada. Uma opção está correta. Indique a opção correta para cada questão.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -110,7 +111,8 @@ class QuestionUseCase:
                 functions=quest_function,
                 function_call={"name": "create_boolquest"},
             )
-            questions = json.loads(response['choices'][0]['message']['function_call']['arguments'])
+            questions = json.loads(
+                response['choices'][0]['message']['function_call']['arguments'])
             return JSONResponse(content={'questions': questions['questions'], "message": "Questões geradas com sucesso!"})
         except Exception:
             return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)
