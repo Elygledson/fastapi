@@ -67,7 +67,7 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Depends(securit
 # Rota para gerar o token JWT
 
 
-@auth.get("/token")
+@auth.get("/token", tags=['Authentication'], description='Rota para gerar o token JWT')
 def get_token(username: str, password: str):
     # Valida o usuário e senha
     if username != "admin" or password != "admin":
@@ -78,9 +78,4 @@ def get_token(username: str, password: str):
     token = create_jwt_token(username)
     return {"access_token": token, "token_type": "bearer"}
 
-# Rota protegida por autenticação JWT
 
-
-@auth.get("/protected-route")
-def protected_route(username: str = Depends(verify_jwt_token)):
-    return {"message": f"Welcome, {username}! This is a protected route."}

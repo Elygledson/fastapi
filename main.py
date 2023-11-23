@@ -5,7 +5,9 @@ from fastapi import FastAPI
 
 import uvicorn
 
-app = FastAPI()
+app = FastAPI(title="Question Generator",
+              description='API para geração de questões (MVP)',
+              version='1.0.0')
 
 app.include_router(question, prefix='/api')
 app.include_router(auth, prefix='/api')
@@ -18,5 +20,8 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == '__main__':
+    import uvicorn
+
+    uvicorn.run('main:app', host='127.0.0.1', port=8000,
+                log_level='info', reload=False)
