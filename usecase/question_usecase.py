@@ -15,7 +15,7 @@ openai.api_key = config.get('OPENAI_API_KEY')
 
 class QuestionUseCase:
     def __init__(self):
-        self.llm = ChatOpenAI(temperature=0.0, model_name='gpt-3.5-turbo', max_tokens=512)
+        self.llm = ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo', max_tokens=512)
 
     def generate_mcq(self, question: QuestionFactory):
         try:
@@ -85,9 +85,8 @@ class QuestionUseCase:
             )
             questions = json.loads(
                 response['choices'][0]['message']['function_call']['arguments'])
-            return JSONResponse(content={'questions': questions['questions'], "message": "Questões geradas com sucesso!"})
-        except Exception as e:
-            print(e)
+            return questions['questions']
+        except Exception:
             return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)
 
     def generate_boolquest(self, question: QuestionFactory):
@@ -116,7 +115,7 @@ class QuestionUseCase:
                                     "properties": {
                                           "context": {
                                             "type": "string",
-                                            "description": "Um contexto antes de gerar a questão"
+                                            "description": "Crie um contexto descrevendo uma situação problema para a questão."
                                         },
                                         "question": {
                                             "type": "string",
@@ -137,7 +136,7 @@ class QuestionUseCase:
                                             "type": "array",
                                             "items": {
                                                 "type": "string",
-                                                "description": "Uma curta justificativa para cada alternativa da questão de múltipla escolha ."
+                                                "description": "Uma curta justificativa para cada alternativa da questão verdadeiro ou falso."
                                                 }
                                         },
                                     }
@@ -157,15 +156,13 @@ class QuestionUseCase:
             )
             questions = json.loads(
                 response['choices'][0]['message']['function_call']['arguments'])
-            return JSONResponse(content={'questions': questions['questions'], "message": "Questões geradas com sucesso!"})
+            return questions['questions']
         except Exception as e:
             print(e)
             return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)
         
     def generate(self, question: QuestionFactory):
         formatted_question  = f"""
-        Não deve ser gerado alternativas do tipo "Nenhuma das alternativas anteriores", "Todas as alternativas anteriores" ou alternativas sarcásticas.
-        Na questão é proibido usar palavras como "mais adequado" "mais acertiva"
         Nível de dificuldade: {question.level}, 
         Capacidade: {question.capacity}, 
         Conhecimento: {question.knowledge}, 
@@ -175,22 +172,25 @@ class QuestionUseCase:
         if question.question_num > 10:
            raise HTTPException(status_code=400, detail="O número de questões deve ser menor ou igual a 10.")
         response_schemas = [
-            ResponseSchema(
-                name="context", type='string', description="""Um contexto para a questão."""),
-            ResponseSchema(
-                name="question", type='string', description="""uma pergunta de múltipla escolha gerada a partir do trecho de texto de entrada."""),
-            ResponseSchema(
-                name="options", type='array', description="escolhas possíveis para a questão de múltipla escolha. Três opções estão incorretas e uma está correta."),
-            ResponseSchema(
-                name="answer", type='string', description="opção correta para a questão de múltipla escolha."),
-            ResponseSchema(
-                name="justifications", type='array', description="uma pequena justificativa para cada alternativa.")
-        ]
+        ResponseSchema(name="context", type='string', description="""Descreva uma situação-problema relacionada ao conhecimento que será avaliado pelo item. Ele tem o papel de mobilizar os conhecimentos necessários para resolver a situação-problema apresentada. É proibido o contexto em que: faça propaganda para evidenciar uma marca,desrespeite proibições já previstas na legislação brasileira vigente, aborda conteúdos polêmicos, utilize nomes fictícios jocosos ou identifique pessoas em geral e contenha estereótipos e preconceitos de condição social, regional, étnico-racial, de gênero, de orientação sexual, de idade ou de linguagem, assim como de qualquer outra forma de discriminação ou de violação de direitos. Não utilize pronomes pessoas como eu/tu/ele/nós/vós/eles/elas ou "
+    'Você' na criação do contexto.
+        """),
+        ResponseSchema(name="question", type='string', description="""uma pergunta de múltipla escolha deverá ser gerada a partir do trecho dessa segunda parte da estrutura do item. 
+                É ele quem enuncia e explica o que se espera que o estudante faça. O comando deverá ser obrigatoriamente relacionado ao contexto apresentado. Deve-se apresentar na forma de uma frase que determina o que o estudante deve procurar entre os recursos cognitivos mobilizados para solucionar o problema apresentado no contexto. O comando(que é a pergunta norteadora) deve do item de ser escrito na forma de uma pergunta, em que o respondente resolve o problema e seleciona entre as alternativas a que responde corretamente. ser formulado de modo claro, objetivo e direto, sem apresentar informações adicionais ou complementares. O comando estar associado à capacidade avaliada, estar obrigatoriamente relacionado ao contexto apresentado anteriomente e ser suficiente para que o aluno somente com o contexto e o comando já visualize a resposta correta. 
+                Vale ressaltar que é proibido no comando expressões:
+                “É correto afirmar que”
+                “Assinale a alternativa correta”,
+                “Qual das alternativas...”
+                “A alternativa que indica...”, pois dificulta a criação de quatro situações plausíveis nas alternativas; 
+                A utilização de termos como: sempre, nunca, todo, totalmente, absolutamente, completamente, somente, ou outras palavras semelhantes; e a utilização de sentença negativa, tais como, não, incorreto, errado, pois dificulta a compreensão, induzindo o aluno ao erro pela falta de entendimento.
+                """),
+        ResponseSchema(name="options", type='array', description=" As alternativas são possibilidades de resposta para a situação-problema apresentada, sendo uma absolutamente correta, o gabarito, e as demais, os distratores plausíveis. A plausibilidade implica que essas respostas, embora não sejam corretas, são razoáveis ou admitidas do ponto de vista do aluno que não adquiriu, ainda, o domínio do conhecimento abordado. Idealmente, o distrator(Justificativa da resposta errada) deve representar o processo de construção da aprendizagem ainda não consolidado. Essa alternativas devem se escolhas possíveis para a questão de múltipla escolha."),
+        ResponseSchema(name="answer", type='string', description="opção correta para a questão de múltipla escolha."),
+        ResponseSchema(name="justifications", type='array', description=" Todas as alternativas devem ser justificadas(Distratores), mesmo a correta(Promotor), sendo que, geralmente, a justificativa está associada ao processo de desenvolvimento da capacidade. ")]
         output_parser = StructuredOutputParser.from_response_schemas(
             response_schemas)
         format_instructions = output_parser.get_format_instructions()
-        prompt = ChatPromptTemplate(messages=[HumanMessagePromptTemplate.from_template("""Dado uma texto, gere questões de múltipla escolha a partir dele junto com a resposta correta.
-                                                                                       \n{format_instructions}\n{user_prompt}""")],
+        prompt = ChatPromptTemplate(messages=[HumanMessagePromptTemplate.from_template("""Dado uma texto, gere questões de múltipla escolha a partir dele junto com a resposta correta.\n{format_instructions}\n{user_prompt}""")],
                                     input_variables=["user_prompt"],
                                     partial_variables={"format_instructions": format_instructions})
         user_query = prompt.format_prompt(user_prompt=formatted_question)
