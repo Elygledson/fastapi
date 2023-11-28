@@ -115,7 +115,7 @@ class QuestionUseCase:
                                     "properties": {
                                           "context": {
                                             "type": "string",
-                                            "description": "Crie um contexto descrevendo uma situação problema para a questão."
+                                            "description": "Crie um contexto descrevendo uma situação problema para a questão. É proibido o contexto em que: faça propaganda para evidenciar uma marca,desrespeite proibições já previstas na legislação brasileira vigente, aborda conteúdos polêmicos, utilize nomes fictícios jocosos ou identifique pessoas em geral e contenha estereótipos e preconceitos de condição social, regional, étnico-racial, de gênero, de orientação sexual, de idade ou de linguagem, assim como de qualquer outra forma de discriminação ou de violação de direitos. Não utilize pronomes pessoas como eu/tu/ele/nós/vós/eles/elas ou 'Você' na criação do contexto."
                                         },
                                         "question": {
                                             "type": "string",
@@ -125,7 +125,7 @@ class QuestionUseCase:
                                             "type": "array",
                                             "items": {
                                                 "type": "string",
-                                                "description": "Opção Verdadeiro ou Falso para a questão booleana extraída."
+                                                "description": "As alternativas são possibilidades de resposta para a situação-problema apresentada, alternativas do tipo Verdadeiro ou Falso."
                                             }
                                         },
                                         "answer": {
@@ -136,7 +136,7 @@ class QuestionUseCase:
                                             "type": "array",
                                             "items": {
                                                 "type": "string",
-                                                "description": "Uma curta justificativa para cada alternativa da questão verdadeiro ou falso."
+                                                "description": "Uma curta justificativa para as duas alternativas da questão."
                                                 }
                                         },
                                     }
@@ -157,8 +157,7 @@ class QuestionUseCase:
             questions = json.loads(
                 response['choices'][0]['message']['function_call']['arguments'])
             return questions['questions']
-        except Exception as e:
-            print(e)
+        except Exception:
             return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)
         
     def generate(self, question: QuestionFactory):
@@ -172,10 +171,9 @@ class QuestionUseCase:
         if question.question_num > 10:
            raise HTTPException(status_code=400, detail="O número de questões deve ser menor ou igual a 10.")
         response_schemas = [
-        ResponseSchema(name="context", type='string', description="""Descreva uma situação-problema relacionada ao conhecimento que será avaliado pelo item. Ele tem o papel de mobilizar os conhecimentos necessários para resolver a situação-problema apresentada. É proibido o contexto em que: faça propaganda para evidenciar uma marca,desrespeite proibições já previstas na legislação brasileira vigente, aborda conteúdos polêmicos, utilize nomes fictícios jocosos ou identifique pessoas em geral e contenha estereótipos e preconceitos de condição social, regional, étnico-racial, de gênero, de orientação sexual, de idade ou de linguagem, assim como de qualquer outra forma de discriminação ou de violação de direitos. Não utilize pronomes pessoas como eu/tu/ele/nós/vós/eles/elas ou "
-    'Você' na criação do contexto.
+        ResponseSchema(name="context", type='string', description="""Crie um contexto descrevendo uma situação problema para a questão. É proibido o contexto em que: faça propaganda para evidenciar uma marca,desrespeite proibições já previstas na legislação brasileira vigente, aborda conteúdos polêmicos, utilize nomes fictícios jocosos ou identifique pessoas em geral e contenha estereótipos e preconceitos de condição social, regional, étnico-racial, de gênero, de orientação sexual, de idade ou de linguagem, assim como de qualquer outra forma de discriminação ou de violação de direitos. Não utilize pronomes pessoas como eu/tu/ele/nós/vós/eles/elas ou 'Você' na criação do contexto.
         """),
-        ResponseSchema(name="question", type='string', description="""uma pergunta de múltipla escolha deverá ser gerada a partir do trecho dessa segunda parte da estrutura do item. 
+        ResponseSchema(name="question", type='string', description="""Gere uma pergunta de múltipla escolha com base nas regras definidas, 
                 É ele quem enuncia e explica o que se espera que o estudante faça. O comando deverá ser obrigatoriamente relacionado ao contexto apresentado. Deve-se apresentar na forma de uma frase que determina o que o estudante deve procurar entre os recursos cognitivos mobilizados para solucionar o problema apresentado no contexto. O comando(que é a pergunta norteadora) deve do item de ser escrito na forma de uma pergunta, em que o respondente resolve o problema e seleciona entre as alternativas a que responde corretamente. ser formulado de modo claro, objetivo e direto, sem apresentar informações adicionais ou complementares. O comando estar associado à capacidade avaliada, estar obrigatoriamente relacionado ao contexto apresentado anteriomente e ser suficiente para que o aluno somente com o contexto e o comando já visualize a resposta correta. 
                 Vale ressaltar que é proibido no comando expressões:
                 “É correto afirmar que”
@@ -184,7 +182,7 @@ class QuestionUseCase:
                 “A alternativa que indica...”, pois dificulta a criação de quatro situações plausíveis nas alternativas; 
                 A utilização de termos como: sempre, nunca, todo, totalmente, absolutamente, completamente, somente, ou outras palavras semelhantes; e a utilização de sentença negativa, tais como, não, incorreto, errado, pois dificulta a compreensão, induzindo o aluno ao erro pela falta de entendimento.
                 """),
-        ResponseSchema(name="options", type='array', description=" As alternativas são possibilidades de resposta para a situação-problema apresentada, sendo uma absolutamente correta, o gabarito, e as demais, os distratores plausíveis. A plausibilidade implica que essas respostas, embora não sejam corretas, são razoáveis ou admitidas do ponto de vista do aluno que não adquiriu, ainda, o domínio do conhecimento abordado. Idealmente, o distrator(Justificativa da resposta errada) deve representar o processo de construção da aprendizagem ainda não consolidado. Essa alternativas devem se escolhas possíveis para a questão de múltipla escolha."),
+        ResponseSchema(name="options", type='array', description="As alternativas são possibilidades de resposta para a situação-problema apresentada, sendo uma absolutamente correta, o gabarito, e as demais, os distratores plausíveis. A plausibilidade implica que essas respostas, embora não sejam corretas, são razoáveis ou admitidas do ponto de vista do aluno que não adquiriu, ainda, o domínio do conhecimento abordado. Idealmente, o distrator(Justificativa da resposta errada) deve representar o processo de construção da aprendizagem ainda não consolidado. Essa alternativas devem se escolhas possíveis para a questão de múltipla escolha."),
         ResponseSchema(name="answer", type='string', description="opção correta para a questão de múltipla escolha."),
         ResponseSchema(name="justifications", type='array', description=" Todas as alternativas devem ser justificadas(Distratores), mesmo a correta(Promotor), sendo que, geralmente, a justificativa está associada ao processo de desenvolvimento da capacidade. ")]
         output_parser = StructuredOutputParser.from_response_schemas(
