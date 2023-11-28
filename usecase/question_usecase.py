@@ -15,7 +15,7 @@ openai.api_key = config.get('OPENAI_API_KEY')
 
 class QuestionUseCase:
     def __init__(self):
-        self.llm = ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo', max_tokens=512)
+        self.llm = ChatOpenAI(temperature=1.0, model_name='gpt-3.5-turbo', max_tokens=512)
 
     def generate_mcq(self, question: QuestionFactory):
         try:
@@ -33,7 +33,7 @@ class QuestionUseCase:
             mcq_function = [
                 {
                     "name": "create_mcq",
-                    "description": f"Gere questões de múltipla escolha com base nas regras fornecidas",
+                    "description": f"Gere questões de múltipla escolha com base nas regras fornecidas, além disso, procure ser criativo nos tópicos acerca das questões.",
                     "parameters": {
                         "type": "object",
                         "properties": {
