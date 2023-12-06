@@ -204,7 +204,7 @@ class QuestionUseCase:
 
 class SenaiPlay:
     def __init__(self):
-        self.llm = ChatOpenAI(temperature=1.0, model_name='gpt-3.5-turbo', max_tokens=512)
+        self.llm = ChatOpenAI(temperature=0.0, model_name='gpt-3.5-turbo', max_tokens=512)
 
     def get_text(self, question: QuestionFactorySenaiPlay):
         # Check if URL is provided
@@ -230,7 +230,7 @@ class SenaiPlay:
             # Transcribe audio using the model
             result = modelT.transcribe(audio_file)
             os.remove(audio_file)
-            return result['text'].strip()
+            return { 'transcription': result['text'].strip() }
             
         else:
             # Error if the video is too long for transcription
@@ -289,12 +289,11 @@ class SenaiPlay:
                     }
                 }
             ]
-
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "user", "content": formatted_question},
-                    {"role": "user", "content": transcription}
+                    {"role": "user", "content": transcription['transcription']}
                 ],
                 functions=mcq_function,
                 function_call={"name": "create_mcq"},
