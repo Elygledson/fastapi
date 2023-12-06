@@ -2,15 +2,21 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from langchain.chat_models import ChatOpenAI
 from config.environment import config
-from models.request import QuestionFactory
+from models.request import QuestionFactory,QuestionFactorySenaiPlay
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+import os
+import logging
+from pytube import YouTube
+import whisper
 
 import re
 import openai
 import json
 
 openai.api_key = config.get('OPENAI_API_KEY')
+logging.basicConfig(level=logging.INFO)
+modelT = whisper.load_model("base")
 
 
 class QuestionUseCase:
@@ -195,3 +201,107 @@ class QuestionUseCase:
         user_query_output = self.llm(user_query.to_messages())
         json_string = re.search(r'```json\n(.*?)```',user_query_output.content, re.DOTALL).group(1)
         return json.loads(f'[{json_string}]')
+
+class SenaiPlay:
+    def __init__(self):
+        self.llm = ChatOpenAI(temperature=1.0, model_name='gpt-3.5-turbo', max_tokens=512)
+
+    def get_text(self, question: QuestionFactorySenaiPlay):
+        # Check if URL is provided
+        if question.url != '':
+            output_text_transcribe = ''
+
+        # Download video and convert to audio
+        yt = YouTube(question.url)
+        video = yt.streams.filter(only_audio=True).first()
+        out_file = video.download(output_path=".")
+
+        # Get file size of downloaded audio
+        file_stats = os.stat(out_file)
+        logging.info(f'Size of audio file in Bytes: {file_stats.st_size}')
+
+        # Check if the file size is within limit for transcription
+        if file_stats.st_size <= 30000000:
+            base, ext = os.path.splitext(out_file)
+            new_file = base + '.mp3'
+            os.rename(out_file, new_file)
+            audio_file = new_file
+
+            # Transcribe audio using the model
+            result = modelT.transcribe(audio_file)
+            os.remove(audio_file)
+            return result['text'].strip()
+            
+        else:
+            # Error if the video is too long for transcription
+            error_message = 'Videos for transcription on this space are limited to about 1.5 hours. ' \
+                            'Sorry about this limit but some joker thought they could stop this tool ' \
+                            'from working by transcribing many extremely long videos.'
+            logging.error(error_message)
+
+    def generate_mcq_sp(self, question: QuestionFactorySenaiPlay):
+        try:
+            transcription = self.get_text(question)
+
+            formatted_question = f"""
+            Número de questões: {question.question_num}, 
+            Número de alternativas: {question.num_options}."""
+
+            if question.question_num > 10:
+                raise HTTPException(status_code=400, detail="O número de questões deve ser menor ou igual a 10.")
+            
+            mcq_function = [
+                {
+                    "name": "create_mcq",
+                    "description": f"Gere questões de múltipla escolha com base nas regras fornecidas e com base na transcrição.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "questions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "context": {
+                                            "type": "string",
+                                            "description": "Um contexto antes de gerar a questão"
+                                        },
+                                        "question": {
+                                            "type": "string",
+                                            "description": "Uma pergunta de múltipla escolha extraída das regras de entrada."
+                                        },
+                                        "options": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "description": "Opção do candidato para a questão de múltipla escolha extraída."
+                                            }
+                                        },
+                                        "answer": {
+                                            "type": "string",
+                                            "description": "Opção correta para a questão de múltipla escolha."
+                                        },
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["questions"]
+                    }
+                }
+            ]
+
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "user", "content": formatted_question},
+                    {"role": "user", "content": transcription}
+                ],
+                functions=mcq_function,
+                function_call={"name": "create_mcq"},
+            )
+            questions = json.loads(
+                response['choices'][0]['message']['function_call']['arguments']
+            )
+            return questions['questions']
+        except Exception:
+            return JSONResponse(content={'message': 'Erro ao gerar as questões.'}, status_code=500)

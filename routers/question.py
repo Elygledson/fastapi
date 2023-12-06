@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Depends
-from models.request import Question, QuestionFactory, QuestionType
-from usecase.question_usecase import QuestionUseCase
+from models.request import QuestionFactorySenaiPlay, QuestionFactory, QuestionType
+from usecase.question_usecase import QuestionUseCase,SenaiPlay
 
 question = APIRouter()
 
@@ -13,5 +13,9 @@ def generate_question(question: QuestionFactory,  question_usecase: QuestionUseC
         return question_usecase.generate(question)
     
 @question.post('/transcription/questions')
-def generate(question: Question, question_usecase: QuestionUseCase = Depends()):
-    return question_usecase.generate(question.content, question.num)
+def generate(question: QuestionFactorySenaiPlay, question_usecase: SenaiPlay = Depends()):
+    return question_usecase.generate_mcq_sp(question)
+
+@question.post('/transcription')
+def get_text(question: QuestionFactorySenaiPlay, question_usecase: SenaiPlay = Depends()):
+    return question_usecase.get_text(question)

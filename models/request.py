@@ -33,6 +33,8 @@ class QuestionFactory(BaseModel):
     context: Optional[str] = None
 
 
-class Question(BaseModel):
-    content: str
-    num: int
+class QuestionFactorySenaiPlay(BaseModel):
+    url: str
+    type: QuestionType = QuestionType.multiple_choice_question
+    question_num: int = 1
+    num_options: Optional[NumOptions] = NumOptions.FOUR
