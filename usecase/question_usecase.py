@@ -26,6 +26,7 @@ class QuestionUseCase:
     def generate_mcq(self, question: QuestionFactory):
         try:
             formatted_question  = f"""
+            Forneça um contexto antes de gerar a questão
             Não gere alternativas do tipo "Nenhuma das alternativas anteriores", "Todas as alternativas anteriores" ou alternativas sarcásticas.
             Na questão é proibido usar palavras como "mais adequado" "mais acertiva"
             Nível de dificuldade: {question.level}, 
@@ -38,49 +39,53 @@ class QuestionUseCase:
                 raise HTTPException(status_code=400, detail="O número de questões deve ser menor ou igual a 10.")
             mcq_function = [
                 {
-                    "name": "create_mcq",
-                    "description": f"Gere questões de múltipla escolha com base nas regras fornecidas, além disso, procure ser criativo nos tópicos acerca das questões.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "questions": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "context": {
-                                            "type": "string",
-                                            "description": "Um contexto antes de gerar a questão"
-                                        },
-                                        "question": {
-                                            "type": "string",
-                                            "description": "Uma pergunta de múltipla escolha extraída das regras de entrada."
-                                        },
-                                        "options": {
-                                            "type": "array",
-                                            "items": {
+            "name": "create_mcq",
+            "description": "Gere questões de múltipla escolha com base nas regras fornecidas, além disso, procure ser criativo nos tópicos acerca das questões.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "context": {
+                                    "type": "string",
+                                    "description": "Um contexto antes de gerar a questão"
+                                },
+                                "question": {
+                                    "type": "string",
+                                    "description": "Uma pergunta de múltipla escolha extraída das regras de entrada."
+                                },
+                                "options": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "description": {
                                                 "type": "string",
-                                                "description": "Opção do candidato para a questão de múltipla escolha extraída."
+                                                "description": "Descrição da opção de resposta."
+                                            },
+                                            "justify": {
+                                                "type": "string",
+                                                "description": "Justificativa para a opção de resposta."
+                                            },
+                                            "is_correct": {
+                                                "type": "boolean",
+                                                "description": "Indica se a opção é a correta."
                                             }
                                         },
-                                        "answer": {
-                                            "type": "string",
-                                            "description": "Opção correta para a questão de múltipla escolha."
-                                        },
-                                        "justifications": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string",
-                                                "description": "Uma curta justificativa para cada alternativa da questão de múltipla escolha ."
-                                                }
-                                        },
+                                        "required": ["description", "justify", "is_correct"]
                                     }
                                 }
-                            }
-                        },
-                        "required": ["questions"]
+                            },
+                            "required": ["context", "question", "options"]
+                        }
                     }
-                }
+                },
+                "required": ["questions"]
+            }
+        }
             ]
 
             response = openai.ChatCompletion.create(
