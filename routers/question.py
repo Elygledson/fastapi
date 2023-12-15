@@ -10,7 +10,7 @@ def generate_question(question: QuestionFactory,  question_usecase: QuestionUseC
     if question.type == QuestionType.boolean_question:
         return question_usecase.generate_boolquest(question)
     else:
-        return question_usecase.generate(question)
+        return question_usecase.generate_mcq(question)
     
 @question.post('/transcription/questions')
 def generate(question: QuestionFactorySenaiPlay, question_usecase: SenaiPlay = Depends()):
