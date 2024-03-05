@@ -1,13 +1,16 @@
 from fastapi.middleware.cors import CORSMiddleware
-from routes.question import router
+from repositories.database import Database
+from routes.question import question
+from config.environment import config
 from fastapi import FastAPI
 
 import uvicorn
 
 app = FastAPI()
 
-app.include_router(router, prefix='/api')
+app.include_router(question, prefix='/api')
 
+Database.initialize(config.get('COLLECTION'))
 
 app.add_middleware(
     CORSMiddleware,
