@@ -59,6 +59,21 @@ async def get_evaluations(evaluation_id: str, question_repository: QuestionRepos
             status_code=500, detail="Falha ao obter avaliação.")
 
 
+@question.put("/evaluations/{evaluation_id}")
+async def update_evaluation(
+    evaluation_id: str,
+    evaluation_data: Evaluation,
+    question_repository: QuestionRepository = Depends()
+):
+    try:
+        await question_repository.update(evaluation_id, evaluation_data)
+        return {"message": "Avaliação atualizada com sucesso"}
+    except Exception as e:
+        logger.info(e)
+        raise HTTPException(
+            status_code=500, detail=f"Falha ao atualizar avaliação")
+
+
 @question.delete("/evaluations/{evaluation_id}")
 async def delete_evaluation(evaluation_id: str, question_repository: QuestionRepository = Depends()):
     try:

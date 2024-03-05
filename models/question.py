@@ -41,6 +41,7 @@ class Options(BaseModel):
 
 
 class Question(BaseModel):
+    context: str
     question: str
     options: List[Options]
     answer: str

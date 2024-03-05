@@ -1,4 +1,6 @@
+from typing import Union
 from fastapi import Depends
+from pydantic import BaseModel
 
 from models.question import Evaluation, Options, Question, QuestionFactory
 
@@ -18,6 +20,7 @@ class QuestionRepository(BaseRepository):
         for result in results:
             questions = [
                 Question(
+                    context=q['context'],
                     question=q["question"],
                     options=[Options(**opt) for opt in q["options"]],
                     answer=q["answer"]
@@ -49,10 +52,17 @@ class QuestionRepository(BaseRepository):
         return await self._db.find_one(self._collection, id)
 
     async def list_one_evaluation(self, query):
-          question = await self._db.find_one(self._collection, query)
-          if question:
+        question = await self._db.find_one(self._collection, query)
+        if question:
             return self.format_evaluations_results([question])
-          return None
+        return None
+
+    async def update(self, mongo_id: str, data: Union[BaseModel, dict]):
+        if isinstance(data, BaseModel):
+            data_dict = data.dict(exclude_none=True)
+        else:
+            data_dict = data
+        await self._db.update(self._collection, mongo_id, data_dict)
 
     async def delete_question(self, id) -> Evaluation | None:
         await self._db.delete(self._collection, id)
