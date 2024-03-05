@@ -3,7 +3,8 @@ from repositories.database import Database
 from routers.question import question
 from config.environment import config
 from fastapi import FastAPI
-import asyncio
+
+import uvicorn
 
 app = FastAPI()
 
@@ -19,4 +20,4 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-    asyncio.run(app.run_task(host="0.0.0.0", port=8000))
+    uvicorn.run(app, host="0.0.0.0", port=8000)

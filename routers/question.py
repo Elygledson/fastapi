@@ -5,12 +5,15 @@ from models.question import Evaluation, QuestionFactory, QuestionType
 from question_generators.question import QuestionUseCase
 from repositories.question_repository import QuestionRepository
 import logging
-
+import asyncio
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 question = APIRouter()
+
+event_loop = asyncio.get_event_loop()
+asyncio.set_event_loop(event_loop)
 
 
 @question.post('/questions')
