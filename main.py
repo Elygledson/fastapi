@@ -1,3 +1,4 @@
+import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from repositories.database import Database
 from routers.question import question
@@ -6,11 +7,14 @@ from fastapi import FastAPI
 
 import uvicorn
 
+asyncio.set_event_loop(asyncio.new_event_loop())
+
 app = FastAPI()
 
 app.include_router(question, prefix='/api')
 
 Database.initialize(config.get('COLLECTION'))
+
 
 app.add_middleware(
     CORSMiddleware,
