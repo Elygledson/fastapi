@@ -40,7 +40,7 @@ async def get_evaluations(question_repository: QuestionRepository = Depends()):
     except Exception as e:
         logger.info(e)
         raise HTTPException(
-            status_code=500, detail="Falha ao salvar avaliação.")
+            status_code=500, detail="Falha ao salvar avaliação.{e}")
 
 
 @question.get("/evaluations/{evaluation_id}")
