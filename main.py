@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from repositories.database import Database
-from routes.question import question
+from routers.question import question
 from config.environment import config
 from fastapi import FastAPI
 
