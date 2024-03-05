@@ -64,5 +64,5 @@ class QuestionRepository(BaseRepository):
             data_dict = data
         await self._db.update(self._collection, mongo_id, data_dict)
 
-    async def delete_question(self, id) -> Evaluation | None:
+    async def delete_question(self, id):
         await self._db.delete(self._collection, id)
