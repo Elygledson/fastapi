@@ -37,10 +37,12 @@ async def get_evaluations(question_repository: QuestionRepository = Depends()):
     try:
         evaluations = await question_repository.list_evaluations({})
         return evaluations
+    except HTTPException as httpException:
+        raise httpException
     except Exception as e:
         logger.info(e)
         raise HTTPException(
-            status_code=500, detail="Falha ao salvar avaliação.{e}")
+            status_code=500, detail=str(e))
 
 
 @question.get("/evaluations/{evaluation_id}")
