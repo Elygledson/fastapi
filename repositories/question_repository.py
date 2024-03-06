@@ -54,7 +54,7 @@ class QuestionRepository(BaseRepository):
         logger.warn('list evaluation')
         result = await self._db.find(self._collection, query)
         logger.info(result)
-        return self.format_evaluations_results(result)
+        return []
 
     async def list_evaluation_by_id(self, id):
         logger.warn('list evaluation by id')

@@ -5,8 +5,6 @@ from models.question import Evaluation, QuestionFactory, QuestionType
 from question_generators.question import QuestionUseCase
 from repositories.question_repository import QuestionRepository
 import logging
-import asyncio
-asyncio.set_event_loop(asyncio.new_event_loop())
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
