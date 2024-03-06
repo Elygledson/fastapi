@@ -1,5 +1,5 @@
 from requests import HTTPError
-from fastapi import  HTTPException
+from fastapi import HTTPException
 from config.environment import config
 from fastapi.responses import JSONResponse
 from models.question import QuestionFactory
@@ -16,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 openai.api_key = config.get('OPENAI_API_KEY')
 
+
 class QuestionUseCase:
-    async  def generate_mcq(self, question: QuestionFactory, max_retries=3):
+    def generate_mcq(self, question: QuestionFactory, max_retries=3):
         for _ in range(max_retries):
             try:
                 system_instructions = f"""
