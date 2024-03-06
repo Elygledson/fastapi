@@ -1,10 +1,14 @@
 from typing import Union
 from fastapi import Depends
 from pydantic import BaseModel
+import logging
 
-from models.question import Evaluation, Options, Question, QuestionFactory
+from models.question import Evaluation, Options, Question
 
 from .database import Database, BaseRepository
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class QuestionRepository(BaseRepository):
@@ -39,20 +43,27 @@ class QuestionRepository(BaseRepository):
         return evaluations
 
     async def create_evaluation(self, evaluation):
+        logger.warn('create evaluation')
         result = await self._db.insert(self._collection, evaluation.dict())
+        logger.info(result)
         if not result:
             return None
         return result
 
     async def list_evaluations(self, query):
+        logger.warn('list evaluation')
         result = await self._db.find(self._collection, query)
+        logger.info(result)
         return self.format_evaluations_results(result)
 
     async def list_evaluation_by_id(self, id):
+        logger.warn('list evaluation by id')
         return await self._db.find_one(self._collection, id)
 
     async def list_one_evaluation(self, query):
+        logger.warn('list one evaluation')
         question = await self._db.find_one(self._collection, query)
+        logger.info(question)
         if question:
             return self.format_evaluations_results([question])
         return None
