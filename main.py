@@ -3,7 +3,6 @@ from repositories.database import Database
 from routers.question import question
 from config.environment import config
 from fastapi import FastAPI
-
 import uvicorn
 
 app = FastAPI()
