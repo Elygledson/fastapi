@@ -42,38 +42,38 @@ class QuestionRepository(BaseRepository):
             evaluations.append(evaluation)
         return evaluations
 
-    async def create_evaluation(self, evaluation):
+    def create_evaluation(self, evaluation):
         logger.warn('create evaluation')
-        result = await self._db.insert(self._collection, evaluation.dict())
+        result = self._db.insert(self._collection, evaluation.dict())
         logger.info(result)
         if not result:
             return None
         return result
 
-    async def list_evaluations(self, query):
+    def list_evaluations(self, query):
         logger.warn('list evaluation')
-        result = await self._db.find(self._collection, query)
+        result = self._db.find(self._collection, query)
         logger.info(result)
-        return []
+        return self.format_evaluations_results(result)
 
-    async def list_evaluation_by_id(self, id):
+    def list_evaluation_by_id(self, id):
         logger.warn('list evaluation by id')
-        return await self._db.find_one(self._collection, id)
+        return self._db.find_one(self._collection, id)
 
-    async def list_one_evaluation(self, query):
+    def list_one_evaluation(self, query):
         logger.warn('list one evaluation')
-        question = await self._db.find_one(self._collection, query)
+        question = self._db.find_one(self._collection, query)
         logger.info(question)
         if question:
             return self.format_evaluations_results([question])
         return None
 
-    async def update(self, mongo_id: str, data: Union[BaseModel, dict]):
+    def update(self, mongo_id: str, data: Union[BaseModel, dict]):
         if isinstance(data, BaseModel):
             data_dict = data.dict(exclude_none=True)
         else:
             data_dict = data
-        await self._db.update(self._collection, mongo_id, data_dict)
+        self._db.update(self._collection, mongo_id, data_dict)
 
-    async def delete_question(self, id):
-        await self._db.delete(self._collection, id)
+    def delete_question(self, id):
+        self._db.delete(self._collection, id)

@@ -21,9 +21,9 @@ def generate_question(question: QuestionFactory,  question_usecase: QuestionUseC
 
 
 @question.post("/evaluations")
-async def create_evaluation(evaluation: Evaluation,  question_repository: QuestionRepository = Depends()):
+def create_evaluation(evaluation: Evaluation,  question_repository: QuestionRepository = Depends()):
     try:
-        evaluation_id = await question_repository.create_evaluation(evaluation)
+        evaluation_id = question_repository.create_evaluation(evaluation)
         return {"evaluation_id": str(evaluation_id), "message": "Avaliação salva com sucesso!"}
     except Exception as e:
         logger.info(e)
@@ -32,9 +32,9 @@ async def create_evaluation(evaluation: Evaluation,  question_repository: Questi
 
 
 @question.get("/evaluations")
-async def get_evaluations(question_repository: QuestionRepository = Depends()):
+def get_evaluations(question_repository: QuestionRepository = Depends()):
     try:
-        evaluations = await question_repository.list_evaluations({})
+        evaluations = question_repository.list_evaluations({})
         return evaluations
     except HTTPException as httpException:
         raise httpException
@@ -45,9 +45,9 @@ async def get_evaluations(question_repository: QuestionRepository = Depends()):
 
 
 @question.get("/evaluations/{evaluation_id}")
-async def get_evaluations(evaluation_id: str, question_repository: QuestionRepository = Depends()):
+def get_evaluations(evaluation_id: str, question_repository: QuestionRepository = Depends()):
     try:
-        evaluation = await question_repository.list_one_evaluation({"_id": ObjectId(evaluation_id)})
+        evaluation = question_repository.list_one_evaluation({"_id": ObjectId(evaluation_id)})
         if evaluation == None:
             raise HTTPException(
                 status_code=404, detail="Avaliação não encontrada.")
@@ -61,13 +61,13 @@ async def get_evaluations(evaluation_id: str, question_repository: QuestionRepos
 
 
 @question.put("/evaluations/{evaluation_id}")
-async def update_evaluation(
+def update_evaluation(
     evaluation_id: str,
     evaluation_data: Evaluation,
     question_repository: QuestionRepository = Depends()
 ):
     try:
-        await question_repository.update(evaluation_id, evaluation_data)
+        question_repository.update(evaluation_id, evaluation_data)
         return {"message": "Avaliação atualizada com sucesso"}
     except Exception as e:
         logger.info(e)
@@ -76,9 +76,9 @@ async def update_evaluation(
 
 
 @question.delete("/evaluations/{evaluation_id}")
-async def delete_evaluation(evaluation_id: str, question_repository: QuestionRepository = Depends()):
+def delete_evaluation(evaluation_id: str, question_repository: QuestionRepository = Depends()):
     try:
-        await question_repository.delete(evaluation_id)
+        question_repository.delete(evaluation_id)
         return {'message': 'Avaliação excluída com sucesso.'}
     except Exception as e:
         logger.info(e)
