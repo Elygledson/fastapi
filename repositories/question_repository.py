@@ -24,7 +24,6 @@ class QuestionRepository(BaseRepository):
         for result in results:
             questions = [
                 Question(
-                    context=q['context'],
                     question=q["question"],
                     options=[Options(**opt) for opt in q["options"]],
                     answer=q["answer"]
@@ -37,6 +36,7 @@ class QuestionRepository(BaseRepository):
                 date=result["date"],
                 school=result["school"],
                 course=result["course"],
+                teacher=result["teacher"],
                 title=result["title"]
             )
             evaluations.append(evaluation)
@@ -44,7 +44,9 @@ class QuestionRepository(BaseRepository):
 
     def create_evaluation(self, evaluation):
         logger.warn('create evaluation')
-        result = self._db.insert(self._collection, evaluation.dict())
+        evaluation_data = evaluation.dict()
+        evaluation_data.pop('id', None)
+        result = self._db.insert(self._collection, evaluation_data)
         logger.info(result)
         if not result:
             return None
@@ -70,9 +72,11 @@ class QuestionRepository(BaseRepository):
 
     def update(self, mongo_id: str, data: Union[BaseModel, dict]):
         if isinstance(data, BaseModel):
-            data_dict = data.dict(exclude_none=True)
+           data_dict = data.dict(exclude_none=True)
+           data_dict.pop('id', None)  
         else:
-            data_dict = data
+           data_dict = data
+           data_dict.pop('id', None)  
         self._db.update(self._collection, mongo_id, data_dict)
 
     def delete_question(self, id):

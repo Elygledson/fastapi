@@ -37,20 +37,20 @@ class QuestionFactory(BaseModel):
 
 class Options(BaseModel):
     description: str
-    justification: str
+    justify: str
 
 
 class Question(BaseModel):
-    context: str
     question: str
     options: List[Options]
     answer: str
 
 
 class Evaluation(BaseModel):
-    id: str
+    id: Optional[str] = None
     questions: List[Question]
     date: str = Field(..., description="Data de criação da avaliação")
     school: str = Field(..., description="Nome da escola")
     course: str = Field(..., description="Nome da disciplina")
+    teacher: str = Field(..., description="Nome do professor")
     title: str = Field(..., description="Título da avaliação")
