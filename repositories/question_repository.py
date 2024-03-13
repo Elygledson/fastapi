@@ -34,6 +34,9 @@ class QuestionRepository(BaseRepository):
                 questions=questions,
                 id=str(result["_id"]),
                 date=result["date"],
+                type=result["type"],
+                content=result["content"],
+                level=result["level"],
                 school=result["school"],
                 course=result["course"],
                 teacher=result["teacher"],
@@ -72,11 +75,11 @@ class QuestionRepository(BaseRepository):
 
     def update(self, mongo_id: str, data: Union[BaseModel, dict]):
         if isinstance(data, BaseModel):
-           data_dict = data.dict(exclude_none=True)
-           data_dict.pop('id', None)  
+            data_dict = data.dict(exclude_none=True)
+            data_dict.pop('id', None)
         else:
-           data_dict = data
-           data_dict.pop('id', None)  
+            data_dict = data
+            data_dict.pop('id', None)
         self._db.update(self._collection, mongo_id, data_dict)
 
     def delete_question(self, id):

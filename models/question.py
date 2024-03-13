@@ -49,6 +49,12 @@ class Question(BaseModel):
 class Evaluation(BaseModel):
     id: Optional[str] = None
     questions: List[Question]
+    content: str = Field(...,
+                         description="Texto usado para geração da avaliação")
+    type: QuestionType = Field(
+        ..., description="O tipo de questão a ser gerada Múltipla Escolha ou Verdadeiro/Falso.")
+    level: str = Field(...,
+                       description="Dificuldade da questão")
     date: str = Field(..., description="Data de criação da avaliação")
     school: str = Field(..., description="Nome da escola")
     course: str = Field(..., description="Nome da disciplina")
