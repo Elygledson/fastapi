@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from config.environment import config
 from fastapi.responses import JSONResponse
 from models.question import QuestionFactory
-from langchain.chat_models import ChatOpenAI
 
 import json
 import openai
